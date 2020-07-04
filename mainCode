@@ -1,4 +1,4 @@
-// Dacik
+// Wattery
 #define sensorPower 7
 #define sensorPin 8
 #define PIN_LED 13
