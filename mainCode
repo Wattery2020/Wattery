@@ -1,10 +1,13 @@
 // Dacik
 #define sensorPower 7
 #define sensorPin 8
+#define PIN_LED 13
+#define PIN_PHOTO_SENSOR A0
 
 void setup() 
 {
   pinMode(sensorPower, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
 
   // dacik sönüydür
   digitalWrite(sensorPower, LOW);
@@ -31,6 +34,18 @@ void loop()
     Serial.println("Su duzludu!!!!!!!!!!");
     digitalWrite(5,HIGH);
     delay(100);
+  }
+  
+  //Isiq yoxlama
+  int valLed = analogRead(PIN_PHOTO_SENSOR);
+  Serial.println(valLed);
+  if (valLed < 300) 
+  {
+    digitalWrite(PIN_LED, LOW);
+  } 
+  else 
+  {
+    digitalWrite(PIN_LED, HIGH);
   }
 
   delay(100); // Yoxlama vaxtı
