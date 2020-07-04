@@ -1,0 +1,49 @@
+// Dacik
+#define sensorPower 7
+#define sensorPin 8
+
+void setup() 
+{
+  pinMode(sensorPower, OUTPUT);
+
+  // dacik sönüydür
+  digitalWrite(sensorPower, LOW);
+
+  Serial.begin(9600);
+}
+
+void loop() 
+{
+  // melumatlar alinir ve ekrana verir
+  int val = readSensor();
+  Serial.print("port ");
+  Serial.println(val);
+
+  // alqaritim vastesi ile teyin
+  if (val) 
+  { // cərəyan yoxdur
+    Serial.println("Su normaldi");
+    digitalWrite(5,LOW);
+    delay(100);
+  }
+  else
+  { // Cərəyan kecirdir
+    Serial.println("Su duzludu!!!!!!!!!!");
+    digitalWrite(5,HIGH);
+    delay(100);
+  }
+
+  delay(100); // Yoxlama vaxtı
+               // Hər bir saniyədən bir
+  Serial.println();
+}
+
+// su dacikinin isi
+int readSensor() 
+{
+  digitalWrite(sensorPower, HIGH);  // dacik yanir
+  delay(10);                        // cereyan verme vaxti
+  int val = digitalRead(sensorPin); // dacikden melumatlar oxunur
+  digitalWrite(sensorPower, LOW);   // dacik sonur
+  return val;                       // son
+}
