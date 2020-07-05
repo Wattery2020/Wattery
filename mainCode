@@ -1,29 +1,81 @@
 // Wattery
 #define sensorPower 7
 #define sensorPin 8
+
 #define PIN_LED 13
 #define PIN_PHOTO_SENSOR A0
 
+#include <SPI.h>
+#include <SD.h>
+
+File myFile;
+
+const int chipSelect = 10;
+
 void setup() 
 {
+  Serial.begin(9600);
+  
   pinMode(sensorPower, OUTPUT);
   pinMode(PIN_LED, OUTPUT);
 
   // dacik sönüydür
   digitalWrite(sensorPower, LOW);
+  
+  while (!Serial) {
+    ;
+  }
+  
+  Serial.print("Initializing SD card...");
 
-  Serial.begin(9600);
+  if (!SD.begin()) {
+    Serial.println("initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
+
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  myFile = SD.open("report.txt", FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    Serial.print("Writing to report.txt...");
+    myFile.println(dateTime.Now+"-"+valWater+"-"+valLed+"-"+valInfo);
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening report.txt");
+  }
+
+  // re-open the file for reading:
+  myFile = SD.open("report.txt");
+  if (myFile) {
+    Serial.println("report.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) {
+      Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening report.txt");
+  }
 }
 
 void loop() 
 {
   // melumatlar alinir ve ekrana verir
-  int val = readSensor();
+  int valInfo = readSensor();
   Serial.print("port ");
-  Serial.println(val);
+  Serial.println(valInfo);
 
   // alqaritim vastesi ile teyin
-  if (val) 
+  if (valInfo) 
   { // cərəyan yoxdur
     Serial.println("Su normaldi");
     digitalWrite(5,LOW);
@@ -56,9 +108,9 @@ void loop()
 // su dacikinin isi
 int readSensor() 
 {
-  digitalWrite(sensorPower, HIGH);  // dacik yanir
-  delay(10);                        // cereyan verme vaxti
-  int val = digitalRead(sensorPin); // dacikden melumatlar oxunur
-  digitalWrite(sensorPower, LOW);   // dacik sonur
-  return val;                       // son
+  digitalWrite(sensorPower, HIGH);       // dacik yanir
+  delay(10);                             // cereyan verme vaxti
+  int valWater = digitalRead(sensorPin); // dacikden melumatlar oxunur
+  digitalWrite(sensorPower, LOW);        // dacik sonur
+  return valWater;                       // son
 }
