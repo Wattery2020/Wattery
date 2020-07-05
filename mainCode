@@ -8,6 +8,15 @@
 #include <SPI.h>
 #include <SD.h>
 
+// Metal detector
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2);
+int Led = 13 ;
+int sinyalpin = 3;
+int valMetal ;
+int buzzerpin = 10;
+
 File myFile;
 
 const int chipSelect = 10;
@@ -22,6 +31,16 @@ void setup()
   // dacik sönüydür
   digitalWrite(sensorPower, LOW);
   
+  // Metal detector
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Detector");
+  pinMode(buzzerpin, OUTPUT);
+  pinMode (Led, OUTPUT) ;
+  pinMode (siqnalpin, INPUT) ;
+  digitalWrite(buzzerpin,HIGH);
+  
+  // Report
   while (!Serial) {
     ;
   }
@@ -41,7 +60,7 @@ void setup()
   // if the file opened okay, write to it:
   if (myFile) {
     Serial.print("Writing to report.txt...");
-    myFile.println(dateTime.Now+"-"+valWater+"-"+valLed+"-"+valInfo);
+    myFile.println(dateTime.Now+"-"+valWater+"-"+valLed+"-"+valInfo+"-"+valMetal);
     // close the file:
     myFile.close();
     Serial.println("done.");
@@ -86,6 +105,23 @@ void loop()
     Serial.println("Su duzludu!!!!!!!!!!");
     digitalWrite(5,HIGH);
     delay(100);
+  }
+  
+  // Metal Detector
+  valMetal = digitalRead (siqnalpin ) ;
+  if (valMetal == HIGH)
+  {
+    lcd.setCursor(0, 1);
+    lcd.print("Metal yoxdur");
+    digitalWrite (Led, LOW);
+    digitalWrite(buzzerpin,HIGH);
+  }
+  else
+  {
+    lcd.setCursor(0, 1);
+    lcd.print("Metal var");
+    beep(500);
+    digitalWrite (Led, HIGH);
   }
   
   //Isiq yoxlama
