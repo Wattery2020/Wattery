@@ -141,6 +141,13 @@ void loop()
   Serial.println();
 }
 
+void beep(unsigned char delayms){
+  analogWrite(10, 255);
+  delay(delayms);
+  analogWrite(10, 150);
+  delay(delayms); 
+}
+
 // su dacikinin isi
 int readSensor() 
 {
